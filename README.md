@@ -50,3 +50,6 @@ the third sends the JSON response, and hands on execution
 the final piece of middleware logs "Response sent successfully" to the console
 
 This is a very simple server that doesn't do much for now, but it illustrates how middleware works in an Express app.
+
+# CORS errors
+CORS stands for Cross Origin Resource Sharing. It is a standard that allows us to relax default security rules which prevent HTTP calls from being made between different servers. In our case, we have two origins: localhost:3000 and localhost:4200, and we would like them to be able to communicate with each other.  For this, we need to add some headers to our response object.
