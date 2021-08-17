@@ -1,5 +1,15 @@
 const express = require('express');
-const bodyParser= require('body-parser');
+const bodyParser = require('body-parser');
+const Thing = require('./models/thing');
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://safae:T.dEz47!XM-tC8N@cluster0-shard-00-00.iw5b0.mongodb.net:27017,cluster0-shard-00-01.iw5b0.mongodb.net:27017,cluster0-shard-00-02.iw5b0.mongodb.net:27017/test?replicaSet=atlas-y8isqk-shard-0&ssl=true&authSource=admin')
+    .then(() => {
+        console.log('Successfully connected to MongoDB Atlas!');
+    })
+    .catch((error) => {
+        console.log('Unable to connect to MongoDB Atlas!');
+        console.error(error);
+    });
 const app = express();
 
 app.use((req, res, next) => {
@@ -12,32 +22,56 @@ app.use((req, res, next) => {
 app.use(bodyParser.json());
 
 app.post('/api/stuff', (req, res, next) => {
-    console.log(req.body);
-    res.status(201).json({
-        message: 'Things are going fine!'
+    const thing = new Thing({
+        title: req.body.title,
+        description: req.body.description,
+        imageUrl: req.body.imageUrl,
+        price: req.body.price,
+        userId: req.body.userId
     });
+    thing.save().then(
+        () => {
+            res.status(201).json({
+                message: 'Post saved successfully!'
+            });
+        }
+    ).catch(
+        (error) => {
+            res.status(400).json({
+                error: error
+            });
+        }
+    );
+});
+
+app.get('/api/stuff/:id', (req, res, next) => {
+    Thing.findOne({
+        _id: req.params.id
+    }).then(
+        (thing) => {
+            res.status(200).json(thing);
+        }
+    ).catch(
+        (error) => {
+            res.status(404).json({
+                error: error
+            });
+        }
+    );
 });
 
 app.use('/api/stuff', (req, res, next) => {
-    const stuff = [
-        {
-        _id: 'egegehe',
-        title: 'gddgjdj',
-        description: 'My favorite Bag',
-        imageUrl: 'https://images.unsplash.com/photo-1629121958394-3be95d8c057c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=80',
-        price: 4500,
-        userId: '65nbdhzh',
-        },
-        {
-            _id: 'egegehertj',
-            title: 'gdggjdgj',
-            description: 'My favorite Bag2',
-            imageUrl: 'https://images.unsplash.com/photo-1629121958394-3be95d8c057c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=80',
-            price: 4700,
-            userId: '65nbhdhdhzh',
+    Thing.find().then(
+        (things) => {
+            res.status(200).json(things);
         }
-];
-res.status(200).json(stuff);
+    ).catch(
+        (error) => {
+            res.status(400).json({
+                error: error
+            });
+        }
+    );
 });
 
 
